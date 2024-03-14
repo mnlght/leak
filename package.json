@@ -9,8 +9,5 @@
   },
   "devDependencies": {
     "@shower/cli": "^0.3.1"
-  },
-  "dependencies": {
-    "@shower/shower": "^3.3.0"
   }
 }
