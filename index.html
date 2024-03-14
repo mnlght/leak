@@ -188,7 +188,252 @@
         <img class="cover" src="images/closure.png">
     </section>
 
-
+    <section class="slide">
+        <h1>Опыт</h1>
+    </section>
+    <section class="slide">
+        <h1>Мои кейсы</h1>
+        <ul>
+            <li class="next">Подозрения на утечки, heap out of memory</li>
+            <li class="next">Утечки коннектов к redis/db</li>
+            <li class="next">Исследование почтабанка</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Подозрения на утечки, heap out of memory</h1>
+        <ul>
+            <li class="next">Неоптимальная работа с памятью</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Задача - выгрузить в архивы много xml файлов. Консольная команда.</h1>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/heapout.png">
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/badscript.jpg">
+    </section>
+    <section class="slide">
+        <h1>Проблемы</h1>
+        <ul>
+            <li class="next">Плавающая ошибка heap out of memory, т.к cron</li>
+            <li class="next">Локально не воспроизводится</li>
+            <li class="next">Увеличение выделенной памяти под old результатов не дало</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Диагностика</h1>
+        <ul>
+            <li class="next">Визуально - память утекать не должна</li>
+            <li class="next">Потребление зашкаливает, нужен рефакторинг</li>
+            <li class="next">После рефакторинга - замеры потребления</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Рефакторинг</h1>
+        <ul>
+            <li class="next">Limit/Offset в выборке</li>
+            <li class="next">Много маленьких архивов вместо 1 большого в памяти</li>
+            <li class="next">1 большой архив по пути, а не в памяти</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/goodscript.jpg">
+    </section>
+    <section class="slide">
+        <h1>Замеры</h1>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/insts.jpg">
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/testscript.jpg">
+    </section>
+    <section class="slide">
+        <h1>Результаты по кейсу</h1>
+        <ul>
+            <li class="next">Способ подойдёт, если Вы примерно понимаете, где потенциальная утечка</li>
+            <li class="next">Если скрипт выполняет достаточно долго, чтобы подключился GC</li>
+            <li class="next">Утечки не было, но потребовался рефакторинг</li>
+            <li class="next">Безудержное раздувание памяти - не выход</li>
+            <li class="next">После замеров девопсы ещё раз заглянули в лимиты</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Утечки коннектов к redis/db</h1>
+        <ul>
+            <li class="next">Утечки коннектов к redis/db</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Redis</h1>
+        <ul>
+            <li class="next">Если самостоятельная работа, не через драйвер ФВ: </li>
+            <li class="next">Открыть коннект</li>
+            <li class="next">Выполнить работу</li>
+            <li class="next">Закрыть коннект</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/redis.jpg">
+    </section>
+    <section class="slide">
+        <h1>DB</h1>
+        <ul>
+            <li class="next">Утекают чаще всего коннекты к БД, а не результаты/запросы</li>
+            <li class="next">Маркер - Ошибки БД в sentry/приложении</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/error-too-many-connections.png">
+    </section>
+    <section class="slide">
+        <h1>Порядок действий</h1>
+        <ul>
+            <li class="next">Попытаться как можно уже определить use-case, которые вызывают эту ошибку</li>
+            <li class="next">Анализ траффика, опрос коллег</li>
+            <li class="next">При наличии 5< use-case подключиться к БД</li>
+            <li class="next">select sum(numbackends) from pg_stat_database</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/pgstat.jpg">
+    </section>
+    <section class="slide">
+        <h1>Порядок действий</h1>
+        <ul>
+            <li>Попытаться как можно уже определить use-case, которые вызывают эту ошибку</li>
+            <li>Анализ траффика, опрос коллег</li>
+            <li>При наличии 5< use-case подключиться к БД</li>
+            <li>select sum(numbackends) from pg_stat_database</li>
+            <li class="next">Находим функционал, который не отпускает коннекты</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Решение (в моём случае)</h1>
+        <ul>
+            <li class="next">Проверка запросов</li>
+            <li class="next">Проверка транзакций (орм может работать с ними иначе)</li>
+            <li class="next">Проверка подключений и экспорта объекта подключения</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/datasource-incorrect.jpg">
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/datasource-correct.jpg">
+    </section>
+    <section class="slide">
+        <h1>Исследование почтабанка</h1>
+    </section>
+    <section class="slide">
+        <h1>Исследование почтабанка. Инструменты</h1>
+        <ul>
+            <li class="next">node --inspect</li>
+            <li class="next">require('v8').writeHeapSnapshot();</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Исследование почтабанка. Условия</h1>
+        <ul>
+            <li class="next">Хорошая рабочая машина</li>
+            <li class="next">Prod сборка</li>
+            <li class="next">Проксирование</li>
+            <li class="next">Возможность в случае v8 делать дамп периодически</li>
+            <li class="next">Или делать дамп в graceful shutdown</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Задача - получить дамп памяти, чтобы было, что анализировать</h1>
+    </section>
+    <section class="slide">
+        <h1>writeHeapSnapshot</h1>
+        <ul>
+            <li class="next">Дополнительные пакеты не нужны</li>
+            <li class="next">Добавляем конструкцию прямо в код</li>
+            <li class="next">Ждём время (долго) и находим файл в ФС</li>
+            <li class="next">F12 + Загрузить снимок</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/f-12-11.jpg">
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/f-12-12.jpg">
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/f-12-13.jpg">
+    </section>
+    <section class="slide">
+        <h1>node --inspect</h1>
+        <ul>
+            <li class="next">Билдим проект npm run build</li>
+            <li class="next">Запускаем проект с опцией --inspection</li>
+            <li class="next">Заходим на сайт, жмём f12</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/f12-1.jpg">
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/f12-2.jpg">
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/f12-3.jpg">
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/f12-4.jpg">
+    </section>
+    <section class="slide">
+        <h1>Задача - эмулировать пользователя через краулер</h1>
+        <ul>
+            <li class="next">Берём любой краулер</li>
+            <li class="next">Настраиваем и травим его на сайтмап</li>
+            <li class="next">Следим за потребляемой памятью и смотрим логи</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/f12-5.jpg">
+    </section>
+    <section class="slide">
+        <img class="cover" src="images/f12-6.jpg">
+    </section>
+    <section class="slide">
+        <h1>ВАЖНО - Делать снимки кучи нужно через временные интервалы и выполнение разных uc</h1>
+    </section>
+    <section class="slide">
+        <h1>Обозначившиеся проблемы</h1>
+        <ul>
+            <li class="next">Билдим проект npm run build</li>
+            <li class="next">Запускаем проект с опцией --inspection</li>
+            <li class="next">Заходим на сайт, жмём f12</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Решение этих проблем</h1>
+        <ul>
+            <li class="next">Висящие методы</li>
+            <li class="next">Статический контент вакансий, по какой-то причине плодящийся в памяти</li>
+            <li class="next">store - глобальная переменная</li>
+            <li class="next">Запрос в middleware всей страницы для id</li>
+            <li class="next">Бесконтрольные Console.log</li>
+            <li class="next">Неосторожная работа со гигантскими строками (replace всего контента)</li>
+            <li class="next">Методами с дублированием и копированием гигантских массивов данных</li>
+            <li class="next">Обновление nextjs с нежелательной версии до последней минорной</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Итоги</h1>
+        <ul>
+            <li class="next">Нарастающая память по 30 мб (в данном случае) ушла</li>
+            <li class="next">После прогрева кешей память фиксируется и GC под нагрузкой успевает увести её в адекватные значения</li>
+            <li class="next">Это ещё далеко не всё, что есть на ПБ, рефакторинг критически необходим</li>
+        </ul>
+    </section>
+    <section class="slide">
+        <h1>Конец</h1>
+    </section>
     <footer class="badge">
         <a href="https://github.com/shower/shower">Fork me on GitHub</a>
     </footer>

@@ -1,9 +1,5 @@
-function createCountdown(start) {
-    let count = start;
+process.memoryUsage()
 
-    return function() {
-        return count--;
-    };
-}
 
-let countdownFrom10 = createCountdown(10);
+process.memoryUsage().heapUsed //объём используемой кучи
+process.memoryUsage().heapTotal //объём кучи
